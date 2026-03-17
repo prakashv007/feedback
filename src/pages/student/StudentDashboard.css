@@ -1,0 +1,131 @@
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.dashboard-header {
+  margin-bottom: 3rem;
+  animation: slideUp 0.6s var(--spring);
+}
+
+.dashboard-header h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.04em;
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-header h1 span {
+  color: var(--primary);
+}
+
+.dashboard-header .subtitle {
+  color: var(--text-muted);
+  font-size: 1.15rem;
+  font-weight: 500;
+}
+
+/* Bento Grid */
+.semester-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 1.5rem;
+  perspective: 1000px;
+}
+
+.semester-card {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2rem;
+  transition: all 0.4s var(--spring);
+  border: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+/* Semi-Bento Logic: Make some cards larger or different colors */
+.semester-card {
+  background: white;
+  border-radius: var(--radius-xl);
+}
+
+.semester-card:nth-child(even) {
+  background: #fdfdfd;
+}
+
+.semester-card:hover {
+  transform: translateY(-8px);
+  border-color: var(--primary);
+  box-shadow: 0 20px 40px rgba(16, 185, 129, 0.08);
+  background: white;
+}
+
+.semester-number {
+  font-size: 4rem;
+  font-weight: 900;
+  line-height: 1;
+  color: rgba(16, 185, 129, 0.04);
+  position: absolute;
+  top: 1rem;
+  right: 1.5rem;
+  transition: all 0.4s ease;
+  font-family: 'Outfit';
+}
+
+.semester-card:hover .semester-number {
+  color: rgba(16, 185, 129, 0.08);
+  transform: scale(1.1) translateY(5px);
+}
+
+.card-content {
+  position: relative;
+  z-index: 1;
+}
+
+.semester-card h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0.5rem;
+}
+
+.semester-card p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 1.5rem;
+}
+
+.explore-btn {
+  font-size: 0.85rem;
+  padding: 0.5rem 1rem;
+  border-radius: 100px;
+  background: rgba(26, 191, 161, 0.1);
+  color: var(--primary);
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.semester-card:hover .explore-btn {
+  background: var(--primary-gradient);
+  color: white;
+}
+
+@media (max-width: 1024px) {
+  .semester-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .semester-grid {
+    grid-template-columns: 1fr;
+  }
+}

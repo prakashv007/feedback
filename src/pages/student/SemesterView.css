@@ -1,0 +1,108 @@
+.semester-view-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.back-btn {
+  padding: 0.5rem 1rem;
+  background-color: var(--card-bg);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 3.5rem;
+}
+
+.header-actions h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.04em;
+  margin: 0;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  color: var(--text-secondary);
+}
+
+.subject-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.subject-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2.25rem 2.5rem;
+  background: white;
+  border-radius: var(--radius-xl);
+  border: 1px solid #f1f5f9;
+  transition: all 0.3s var(--smooth);
+}
+
+.subject-card:hover {
+  transform: translateX(8px);
+  border-color: var(--primary);
+  box-shadow: 0 10px 30px var(--primary-glow);
+}
+
+.subject-info h3 {
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.subject-info h3 span {
+  font-size: 1rem;
+  color: var(--text-light);
+  font-weight: normal;
+}
+
+.teacher-name {
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.teacher-title {
+  color: var(--text-light);
+  font-size: 0.85rem;
+}
+
+.subject-action {
+  min-width: 160px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.status.submitted {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--primary);
+  background-color: var(--primary-glow);
+  padding: 0.6rem 1.25rem;
+  border-radius: 100px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}

@@ -1,0 +1,131 @@
+.reports-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.reports-content {
+  padding: 2.5rem;
+  margin-top: 1rem;
+}
+
+.chart-header {
+  margin-bottom: 3rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 1rem;
+}
+
+.chart-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--text-primary);
+}
+
+.bar-chart-container {
+  height: 400px;
+  display: flex;
+  gap: 1rem;
+  padding-bottom: 2rem;
+  position: relative;
+}
+
+.y-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-bottom: 40px; /* match bar label height */
+  color: var(--text-light);
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: right;
+  width: 30px;
+}
+
+.bars-area {
+  flex: 1;
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  border-bottom: 2px solid var(--border-color);
+  border-left: 2px solid var(--border-color);
+  padding: 0 1rem;
+}
+
+.bar-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+  max-width: 70px;
+}
+
+.bar-group {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  position: relative;
+}
+
+.bar-rect {
+  width: 80%;
+  background-color: var(--primary);
+  border-radius: 6px 6px 0 0;
+  transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  justify-content: center;
+  padding-top: 0.5rem;
+  position: relative;
+}
+
+.bar-rect:hover {
+  filter: brightness(1.1);
+  transform: scaleX(1.05);
+}
+
+.bar-val {
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.bar-tooltip {
+  position: absolute;
+  top: -30px;
+  background-color: var(--text-primary);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+
+.bar-column:hover .bar-tooltip {
+  opacity: 1;
+}
+
+.bar-label {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.repo-legend {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.repo-legend p {
+  color: var(--text-light);
+  font-size: 0.85rem;
+  font-style: italic;
+}
