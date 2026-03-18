@@ -1,64 +1,56 @@
 import { useState, useEffect } from 'react';
-import { teachersInfo, subjectsMetadata } from '../../data/mockData';
+import { db, collection, onSnapshot } from '../../firebase';
 import { Users, Star, Activity, ChevronRight } from 'lucide-react';
 import './HodDashboard.css';
 
 function HodDashboard() {
   const [feedbacks, setFeedbacks] = useState([]);
+  const [staffList, setStaffList] = useState([]);
+  const [subjects, setSubjects] = useState([]);
   const [selectedTeacher, setSelectedTeacher] = useState(null);
 
   useEffect(() => {
-    const loadFeedbacks = async () => {
-      try {
-        const { db, collection, onSnapshot } = await import('../../firebase');
-        const unsub = onSnapshot(collection(db, 'feedbacks'), (snapshot) => {
-          const fbData = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-          }));
-          setFeedbacks(fbData);
-        });
-        return () => unsub();
-      } catch (err) {
-        console.error("Firebase fetch failed:", err);
-        const savedFeedbacks = JSON.parse(localStorage.getItem('feedbacks') || '[]');
-        setFeedbacks(savedFeedbacks);
-      }
-    };
+    const unsubFeedbacks = onSnapshot(collection(db, 'feedbacks'), (snapshot) => {
+      const fbData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setFeedbacks(fbData);
+    });
 
-    const cleanup = loadFeedbacks();
+    const unsubStaff = onSnapshot(collection(db, 'staff'), (snapshot) => {
+      const staffData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setStaffList(staffData);
+    });
+
+    const unsubSubjects = onSnapshot(collection(db, 'subjects'), (snapshot) => {
+      const subData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setSubjects(subData);
+    });
+
     return () => {
-      if (typeof cleanup === 'function') cleanup();
+      unsubFeedbacks();
+      unsubStaff();
+      unsubSubjects();
     };
   }, []);
 
   // Compute Department Stats
-  const totalTeachers = Object.keys(teachersInfo).length;
+  const totalTeachers = staffList.length;
   const totalFeedbacks = feedbacks.length;
   const currentDeptAvg = totalFeedbacks > 0 
     ? (feedbacks.reduce((sum, f) => sum + f.averageRating, 0) / totalFeedbacks).toFixed(2)
     : 0;
 
-  // Approximate response rate (mock calculation: max 60 students per subject)
-  // Subjects tracked * 60 = expected responses
-  let activeSubjectsCount = 0;
-  Object.values(subjectsMetadata).forEach(sem => activeSubjectsCount += sem.length);
+  // Response Rate Calculation
+  // We assume max 60 students per subject
+  const activeSubjectsCount = subjects.length;
   const expectedResponses = activeSubjectsCount * 60; 
   const responseRate = expectedResponses > 0 
     ? Math.min(100, (totalFeedbacks / expectedResponses) * 100).toFixed(1) 
     : 0;
 
   // Compute Teacher Performance
-  const teacherPerformance = Object.keys(teachersInfo).map(code => {
-    const tFeedbacks = feedbacks.filter(f => {
-      // Find subject to confirm it belongs to this teacher
-      let belongsToT = false;
-      Object.values(subjectsMetadata).forEach(sem => {
-        const sub = sem.find(s => s.id === f.subjectId);
-        if (sub && sub.teacherCode === code) belongsToT = true;
-      });
-      return belongsToT;
-    });
+  const teacherPerformance = staffList.map(staff => {
+    // Filter feedbacks for this teacher (using teacherCode)
+    const tFeedbacks = feedbacks.filter(f => f.teacherCode === staff.code);
 
     const tTotal = tFeedbacks.length;
     const tAvg = tTotal > 0 
@@ -66,13 +58,13 @@ function HodDashboard() {
       : 0;
 
     return {
-      code,
-      name: teachersInfo[code].name,
-      title: teachersInfo[code].title,
+      code: staff.code,
+      name: staff.name,
+      title: staff.title,
       totalResponses: tTotal,
       averageRating: parseFloat(tAvg)
     };
-  }).sort((a, b) => b.averageRating - a.averageRating); // Sort highest first
+  }).sort((a, b) => b.averageRating - a.averageRating);
 
   return (
     <div className="hod-dashboard">

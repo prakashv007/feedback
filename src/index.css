@@ -43,13 +43,7 @@
   box-sizing: border-box;
 }
 
-.app-container {
-  display: flex;
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden;
-  background: var(--bg-light);
-}
+
 
 body {
   font-family: 'Inter', sans-serif;
@@ -130,15 +124,7 @@ h1, h2, h3, h4, .outfit {
 }
 
 /* Navigation sidebar polish */
-.sidebar {
-  width: 280px;
-  background: white;
-  border-right: 1px solid #e2e8f0;
-  padding: 2.5rem 1rem;
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-}
+
 
 .nav-item {
   display: flex;
@@ -166,12 +152,7 @@ h1, h2, h3, h4, .outfit {
 }
 
 /* Layout spacing */
-.main-content {
-  flex: 1;
-  padding: 3.5rem;
-  overflow-y: auto;
-  background: var(--bg-light);
-}
+
 
 /* Form refinement */
 input, select, textarea {

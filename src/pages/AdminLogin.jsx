@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Users, ArrowLeft, AlertCircle, Loader2 } from 'lucide-react';
+import { ShieldCheck, ArrowLeft, AlertCircle, Loader2, Lock } from 'lucide-react';
 import './Auth.css';
 
-function StaffLogin() {
-  const [staffCode, setStaffCode] = useState('');
+function AdminLogin() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -12,33 +13,23 @@ function StaffLogin() {
   const handleLogin = (e) => {
     e.preventDefault();
     setError('');
-    const id = staffCode.trim().toUpperCase();
 
-    if (!id) {
-      setError('Please enter your Staff Code');
+    if (!username.trim() || !password.trim()) {
+      setError('Please enter both username and password');
       return;
     }
 
     setLoading(true);
 
-    // Logic from original Login.jsx
     setTimeout(() => {
-      // HOD Login
-      if (id === 'ITHOD') {
-        localStorage.setItem('userRole', 'HOD');
-        localStorage.setItem('userId', id);
-        navigate('/hod');
-        return;
+      if (username.trim() === 'admin' && password === 'aamec2026') {
+        localStorage.setItem('userRole', 'ADMIN');
+        localStorage.setItem('userId', 'ADMIN');
+        navigate('/admin');
+      } else {
+        setError('Invalid username or password');
+        setLoading(false);
       }
-
-      // Generic HOD login for other depts (locked)
-      if (id.endsWith('HOD')) {
-         navigate('/locked', { state: { deptName: 'requested' } });
-         return;
-      }
-
-      setError('Invalid HOD Code. Example: ITHOD');
-      setLoading(false);
     }, 800);
   };
 
@@ -50,7 +41,6 @@ function StaffLogin() {
       </div>
 
       <div className="auth-card-modern animate-slide-up">
-        {/* Left Column: Form */}
         <div className="auth-form-column">
           <Link to="/" className="btn-back">
             <ArrowLeft size={18} />
@@ -58,20 +48,32 @@ function StaffLogin() {
           </Link>
 
           <header>
-            <h2>Hello!</h2>
-            <p className="subtitle">Sign in to HOD portal</p>
+            <h2>Admin</h2>
+            <p className="subtitle">Sign in to admin portal</p>
           </header>
 
           <form onSubmit={handleLogin} className="auth-form">
             <div className="input-container">
-              <Users className="input-icon" size={20} />
+              <ShieldCheck className="input-icon" size={20} />
               <input
                 type="text"
-                id="staffCode"
-                placeholder="HOD Code"
-                value={staffCode}
-                onChange={(e) => setStaffCode(e.target.value)}
+                id="adminUser"
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 autoFocus
+                required
+              />
+            </div>
+
+            <div className="input-container">
+              <Lock className="input-icon" size={20} />
+              <input
+                type="password"
+                id="adminPass"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
               />
             </div>
@@ -84,26 +86,17 @@ function StaffLogin() {
             )}
 
             <button type="submit" className="auth-btn-modern" disabled={loading}>
-              {loading ? <Loader2 className="animate-spin" /> : 'Enter Portal'}
+              {loading ? <Loader2 className="animate-spin" /> : 'Sign In'}
             </button>
           </form>
-
-          <footer className="auth-footer" style={{ marginTop: '2.5rem' }}>
-            <p style={{ fontSize: '0.8rem', opacity: 0.6 }}>
-              Example Code: ITHOD
-            </p>
-          </footer>
         </div>
 
-        {/* Right Column: Branding & Wavy Divider */}
         <div className="auth-banner-column">
-          
           <div className="blob"></div>
-          
           <div className="auth-banner-content">
-            <h2>Welcome Back!</h2>
+            <h2>Admin Panel</h2>
             <p>
-              Access the administrative dashboard to monitor feedback trends and manage academic parameters.
+              Manage staff assignments, student records, and academic configurations.
             </p>
           </div>
         </div>
@@ -112,4 +105,4 @@ function StaffLogin() {
   );
 }
 
-export default StaffLogin;
+export default AdminLogin;

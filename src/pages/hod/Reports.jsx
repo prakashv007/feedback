@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { BarChart3, ChevronLeft } from 'lucide-react';
-import { subjectsMetadata } from '../../data/mockData';
 import './Reports.css';
 
 function Reports() {
@@ -31,7 +30,7 @@ function Reports() {
 
   // Calculate Average Rating per Semester
   const semesterStats = semesters.map(sem => {
-    const semFeedbacks = feedbacks.filter(f => f.semester === sem);
+    const semFeedbacks = feedbacks.filter(f => (f.semesterId === sem || f.semester === sem));
     const avg = semFeedbacks.length > 0
       ? (semFeedbacks.reduce((sum, f) => sum + f.averageRating, 0) / semFeedbacks.length).toFixed(2)
       : 0;
@@ -67,23 +66,25 @@ function Reports() {
             <span>0</span>
           </div>
           
-          <div className="bars-area">
-            {semesterStats.map(stat => (
-              <div key={stat.semester} className="bar-column">
-                <div className="bar-group">
-                  <div className="bar-tooltip">
-                    {stat.average} ({stat.count} resp)
+          <div className="bars-wrapper">
+            <div className="bars-area">
+              {semesterStats.map(stat => (
+                <div key={stat.semester} className="bar-column">
+                  <div className="bar-group">
+                    <div className="bar-tooltip">
+                      {stat.average} ({stat.count} resp)
+                    </div>
+                    <div 
+                      className="bar-rect" 
+                      style={{ height: `${(stat.average / 5) * 100}%` }}
+                    >
+                      {stat.average > 0 && <span className="bar-val">{stat.average}</span>}
+                    </div>
                   </div>
-                  <div 
-                    className="bar-rect" 
-                    style={{ height: `${(stat.average / 5) * 100}%` }}
-                  >
-                    {stat.average > 0 && <span className="bar-val">{stat.average}</span>}
-                  </div>
+                  <div className="bar-label">Sem {stat.semester}</div>
                 </div>
-                <div className="bar-label">Sem {stat.semester}</div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
 

@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import { defaultQuestions, subjectsMetadata, teachersInfo } from '../../data/mockData';
+import { db, collection, query, where, onSnapshot } from '../../firebase';
+import { defaultQuestions } from '../../data/mockData';
 import { Plus, X, BarChart2 } from 'lucide-react';
 import './TeacherDashboard.css';
 
 function TeacherDashboard() {
   const teacherCode = localStorage.getItem('userId');
-  const teacher = teachersInfo[teacherCode] || { name: 'Unknown Teacher' };
-  
+  const [teacher, setTeacher] = useState({ name: 'Loading...', title: '' });
   const [assignedSubjects, setAssignedSubjects] = useState([]);
   const [customQuestions, setCustomQuestions] = useState({});
   const [feedbacks, setFeedbacks] = useState([]);
@@ -16,73 +16,76 @@ function TeacherDashboard() {
   const [newQuestion, setNewQuestion] = useState('');
 
   useEffect(() => {
-    // 1. Find assigned subjects across all semesters
-    const subjects = [];
-    Object.values(subjectsMetadata).forEach(semSubjects => {
-      semSubjects.forEach(sub => {
-        if (sub.teacherCode === teacherCode) {
-          subjects.push(sub);
-        }
-      });
-    });
-    setAssignedSubjects(subjects);
-
-    if (subjects.length > 0 && !activeSubject) {
-      setActiveSubject(subjects[0].id);
-    }
-
-    // 2. Real-time Firebase listeners
-    const setupListeners = async () => {
-      try {
-        const { db, collection, query, where, onSnapshot } = await import('../../firebase');
-        
-        // Listen for all feedbacks related to this teacher's subjects
-        const feedbackQuery = query(
-          collection(db, 'feedbacks'),
-          where('subjectId', 'in', subjects.map(s => s.id))
-        );
-
-        const unsubFeedbacks = onSnapshot(feedbackQuery, (snapshot) => {
-          const fbData = snapshot.docs.map(doc => doc.data());
-          setFeedbacks(fbData);
-        });
-
-        // Listen for custom questions
-        const questionsQuery = query(
-          collection(db, 'customQuestions'),
-          where('teacherCode', '==', teacherCode)
-        );
-
-        const unsubQuestions = onSnapshot(questionsQuery, (snapshot) => {
-          const qsData = {};
-          snapshot.docs.forEach(doc => {
-            const data = doc.data();
-            qsData[data.subjectId] = data.questions;
-          });
-          setCustomQuestions(qsData);
-        });
-
-        return () => {
-          unsubFeedbacks();
-          unsubQuestions();
-        };
-      } catch (err) {
-        console.error("Firestore Listeners failed:", err);
-        // Fallback to local storage
-        const savedCustomQs = JSON.parse(localStorage.getItem('customQuestions') || '{}');
-        setCustomQuestions(savedCustomQs);
-        const savedFeedbacks = JSON.parse(localStorage.getItem('feedbacks') || '[]');
-        setFeedbacks(savedFeedbacks.filter(f => subjects.some(s => s.id === f.subjectId)));
+    // 1. Fetch teacher info from 'staff' collection
+    const qStaff = query(collection(db, 'staff'), where('code', '==', teacherCode));
+    const unsubStaff = onSnapshot(qStaff, (snapshot) => {
+      if (!snapshot.empty) {
+        setTeacher(snapshot.docs[0].data());
+      } else {
+        setTeacher({ name: 'Unknown Teacher', title: '' });
       }
+    });
+
+    // 2. Fetch assigned subjects from 'assignments' collection
+    const qAssignments = query(collection(db, 'assignments'), where('staffCode', '==', teacherCode));
+    const unsubAssignments = onSnapshot(qAssignments, (snapshot) => {
+      const subjects = snapshot.docs.map(doc => ({
+        id: doc.data().subjectId,
+        name: doc.data().subjectName,
+        semester: doc.data().semester
+      }));
+      setAssignedSubjects(subjects);
+      if (subjects.length > 0 && !activeSubject) {
+        setActiveSubject(subjects[0].id);
+      }
+    });
+
+    return () => {
+      unsubStaff();
+      unsubAssignments();
+    };
+  }, [teacherCode]);
+
+  useEffect(() => {
+    if (assignedSubjects.length === 0) return;
+
+    // 3. Real-time Firebase listeners for feedbacks and custom questions
+    const setupListeners = () => {
+      // Listen for all feedbacks related to this teacher's subjects
+      const feedbackQuery = query(
+        collection(db, 'feedbacks'),
+        where('subjectId', 'in', assignedSubjects.map(s => s.id))
+      );
+
+      const unsubFeedbacks = onSnapshot(feedbackQuery, (snapshot) => {
+        const fbData = snapshot.docs.map(doc => doc.data());
+        setFeedbacks(fbData);
+      });
+
+      // Listen for custom questions
+      const questionsQuery = query(
+        collection(db, 'customQuestions'),
+        where('teacherCode', '==', teacherCode)
+      );
+
+      const unsubQuestions = onSnapshot(questionsQuery, (snapshot) => {
+        const qsData = {};
+        snapshot.docs.forEach(doc => {
+          const data = doc.data();
+          qsData[data.subjectId] = data.questions;
+        });
+        setCustomQuestions(qsData);
+      });
+
+      return () => {
+        unsubFeedbacks();
+        unsubQuestions();
+      };
     };
 
-    if (subjects.length > 0) {
-      const cleanup = setupListeners();
-      return () => {
-        if (typeof cleanup === 'function') cleanup();
-      };
-    }
-  }, [teacherCode, activeSubject]);
+    const unsub = setupListeners();
+    return () => unsub();
+  }, [assignedSubjects, teacherCode]);
 
   const handleAddQuestion = async (e) => {
     e.preventDefault();

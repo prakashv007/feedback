@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, CheckCircle, Clock } from 'lucide-react';
-import { subjectsMetadata, teachersInfo } from '../../data/mockData';
+import { db, collection, query, where, onSnapshot, doc } from '../../firebase';
 import FeedbackFormModal from './FeedbackFormModal';
 import './SemesterView.css';
 
@@ -11,70 +11,79 @@ function SemesterView() {
   const semester = parseInt(id);
   
   const [subjects, setSubjects] = useState([]);
+  const [assignments, setAssignments] = useState([]);
   const [feedbacks, setFeedbacks] = useState([]);
   const [selectedSubject, setSelectedSubject] = useState(null);
+  const [activeSessionId, setActiveSessionId] = useState(null);
 
   const userId = localStorage.getItem('userId');
 
   useEffect(() => {
-    // Load subjects for this semester
-    const semSubjects = subjectsMetadata[semester] || [];
-    setSubjects(semSubjects);
+    // 1. Fetch subjects for this semester
+    const qSubjects = query(collection(db, 'subjects'), where('semester', '==', semester));
+    const unsubSubjects = onSnapshot(qSubjects, (snapshot) => {
+      const data = snapshot.docs.map(doc => ({ docId: doc.id, ...doc.data() }));
+      data.sort((a, b) => a.id.localeCompare(b.id)); // Sort by subject code
+      setSubjects(data);
+    });
 
-    // Set up real-time listener for feedbacks from Firestore
-    const loadFeedbacks = async () => {
-      try {
-        const { db, collection, query, where, onSnapshot } = await import('../../firebase');
-        const q = query(
-          collection(db, 'feedbacks'),
-          where('studentId', '==', userId),
-          where('semesterId', '==', semester)
-        );
+    // 2. Fetch assignments for this semester (to get teacher info)
+    const qAssignments = query(collection(db, 'assignments'), where('semester', '==', semester));
+    const unsubAssignments = onSnapshot(qAssignments, (snapshot) => {
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setAssignments(data);
+    });
 
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-          const fbData = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-          }));
-          setFeedbacks(fbData);
-        });
-
-        return () => unsubscribe();
-      } catch (err) {
-        console.error("Firebase not configured or error:", err);
-        // Fallback to local storage if firebase fails/not setup
-        const storedFeedbacks = JSON.parse(localStorage.getItem('feedbacks') || '[]');
-        setFeedbacks(storedFeedbacks.filter(f => f.userId === userId && f.semester === semester));
+    // 3. Fetch active session ID
+    const unsubSettings = onSnapshot(doc(db, 'settings', 'current'), (snap) => {
+      if (snap.exists()) {
+        setActiveSessionId(snap.data().id);
       }
-    };
+    });
 
-    const cleanup = loadFeedbacks();
     return () => {
-      if (typeof cleanup === 'function') cleanup();
+      unsubSubjects();
+      unsubAssignments();
+      unsubSettings();
     };
   }, [semester, userId]);
 
-  // Check if a subject has already been submitted by this user for this semester
+  // Separate effect for feedbacks to depend on activeSessionId
+  useEffect(() => {
+    if (!activeSessionId) return;
+
+    const qFeedbacks = query(
+      collection(db, 'feedbacks'),
+      where('studentId', '==', userId),
+      where('semesterId', '==', semester),
+      where('sessionId', '==', activeSessionId)
+    );
+
+    const unsubFeedbacks = onSnapshot(qFeedbacks, (snapshot) => {
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setFeedbacks(data);
+    });
+
+    return () => unsubFeedbacks();
+  }, [semester, userId, activeSessionId]);
+
+  // Check if a subject has already been submitted by this user
   const isSubmitted = (subjectId) => {
     return feedbacks.some(f => f.subjectId === subjectId);
   };
 
-  const handleFeedbackSubmit = () => {
-    setSelectedSubject(null); // Close modal
+  const getSubjectAssignment = (subjectId) => {
+    return assignments.find(a => a.subjectId === subjectId);
   };
 
-  if (!subjects.length) {
-    return (
-      <div className="semester-view-container">
-        <button className="btn btn-outline back-btn" onClick={() => navigate('/student')}>
-          <ChevronLeft size={20} /> Back to Dashboard
-        </button>
-        <div className="empty-state">
-          <h2>No subjects found for Semester {semester}</h2>
-        </div>
-      </div>
-    );
-  }
+  const handleFeedbackSubmit = () => {
+    setSelectedSubject(null); 
+  };
+
+  const subjectsWithStaff = subjects.map(sub => ({
+    ...sub,
+    assignment: getSubjectAssignment(sub.id)
+  }));
 
   return (
     <div className="semester-view-container">
@@ -85,44 +94,57 @@ function SemesterView() {
         <h1>Semester {semester} Subjects</h1>
       </div>
 
-      <div className="subject-list">
-        {subjects.map((sub) => {
-          const submitted = isSubmitted(sub.id);
-          const teacher = teachersInfo[sub.teacherCode];
+      {subjects.length === 0 ? (
+        <div className="empty-state">
+          <h2>No subjects found for Semester {semester}</h2>
+          <p>Please contact the administrator or check back later.</p>
+        </div>
+      ) : (
+        <div className="subject-list">
+          {subjectsWithStaff.map((sub) => {
+            const submitted = isSubmitted(sub.id);
+            const teacher = sub.assignment;
 
-          return (
-            <div key={sub.id} className="subject-card card">
-              <div className="subject-info">
-                <h3>{sub.name} <span>({sub.id})</span></h3>
-                <p className="teacher-name">{teacher ? teacher.name : 'Unknown Teacher'}</p>
-                <p className="teacher-title">{teacher ? teacher.title : ''}</p>
+            return (
+              <div key={sub.docId} className="subject-card card">
+                <div className="subject-info">
+                  <h3>{sub.name} <span>({sub.id})</span></h3>
+                  <p className="teacher-name">{teacher ? teacher.staffName : 'Faculty Not Assigned'}</p>
+                  <p className="teacher-title">{teacher ? teacher.staffTitle : ''}</p>
+                </div>
+                
+                <div className="subject-action">
+                  {submitted ? (
+                    <div className="status submitted">
+                      <CheckCircle size={18} />
+                      <span>Submitted</span>
+                    </div>
+                  ) : (
+                    <button 
+                      className={`btn ${teacher ? 'btn-primary' : 'btn-outline disabled'}`}
+                      disabled={!teacher}
+                      onClick={() => setSelectedSubject(sub)}
+                    >
+                      {teacher ? 'Provide Feedback' : 'Awaiting Faculty'}
+                    </button>
+                  )}
+                </div>
               </div>
-              
-              <div className="subject-action">
-                {submitted ? (
-                  <div className="status submitted">
-                    <CheckCircle size={18} />
-                    <span>Submitted</span>
-                  </div>
-                ) : (
-                  <button 
-                    className="btn btn-primary"
-                    onClick={() => setSelectedSubject(sub)}
-                  >
-                    Provide Feedback
-                  </button>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
 
       {selectedSubject && (
         <FeedbackFormModal 
           subject={selectedSubject}
           semesterId={semester}
-          teacher={teachersInfo[selectedSubject.teacherCode]}
+          activeSessionId={activeSessionId}
+          teacher={{
+            code: getSubjectAssignment(selectedSubject.id)?.staffCode,
+            name: getSubjectAssignment(selectedSubject.id)?.staffName,
+            title: getSubjectAssignment(selectedSubject.id)?.staffTitle
+          }}
           onClose={() => setSelectedSubject(null)}
           onSubmit={handleFeedbackSubmit}
         />

@@ -41,14 +41,21 @@
   width: 30px;
 }
 
-.bars-area {
+.bars-wrapper {
   flex: 1;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-bottom: 2px solid var(--border-color);
+  border-left: 2px solid var(--border-color);
+}
+
+.bars-area {
   display: flex;
   justify-content: space-around;
   align-items: flex-end;
-  border-bottom: 2px solid var(--border-color);
-  border-left: 2px solid var(--border-color);
   padding: 0 1rem;
+  height: 100%;
+  min-width: 550px;
 }
 
 .bar-column {
@@ -128,4 +135,14 @@
   color: var(--text-light);
   font-size: 0.85rem;
   font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .reports-content {
+    padding: 1.5rem;
+  }
+  
+  .dashboard-header h1 {
+    font-size: 2rem !important;
+  }
 }

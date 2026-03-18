@@ -2,17 +2,22 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'r
 import Entrance from './pages/Entrance';
 import StudentLogin from './pages/StudentLogin';
 import StaffLogin from './pages/StaffLogin';
+import AdminLogin from './pages/AdminLogin';
 import StudentLayout from './layouts/StudentLayout';
-import TeacherLayout from './layouts/TeacherLayout';
 import HodLayout from './layouts/HodLayout';
+import AdminLayout from './layouts/AdminLayout';
 import './App.css';
 
 // Pages
 import StudentDashboard from './pages/student/StudentDashboard';
 import SemesterView from './pages/student/SemesterView';
-import TeacherDashboard from './pages/teacher/TeacherDashboard';
 import HodDashboard from './pages/hod/HodDashboard';
 import Reports from './pages/hod/Reports';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import ManageStaff from './pages/admin/ManageStaff';
+import ManageStudents from './pages/admin/ManageStudents';
+import AssignStaff from './pages/admin/AssignStaff';
+
 import ComingSoon from './pages/ComingSoon';
 
 // Wrap ComingSoon to get state
@@ -29,6 +34,7 @@ function App() {
         <Route path="/" element={<Entrance />} />
         <Route path="/student-login" element={<StudentLogin />} />
         <Route path="/staff-login" element={<StaffLogin />} />
+        <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/locked" element={<LockedPage />} />
         
         {/* Student Routes */}
@@ -37,15 +43,19 @@ function App() {
           <Route path="semester/:id" element={<SemesterView />} />
         </Route>
 
-        {/* Teacher Routes */}
-        <Route path="/teacher" element={<TeacherLayout />}>
-          <Route index element={<TeacherDashboard />} />
-        </Route>
-
         {/* HOD Routes */}
         <Route path="/hod" element={<HodLayout />}>
           <Route index element={<HodDashboard />} />
           <Route path="reports" element={<Reports />} />
+        </Route>
+
+        {/* Admin Routes */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="staff" element={<ManageStaff />} />
+          <Route path="students" element={<ManageStudents />} />
+          <Route path="assign" element={<AssignStaff />} />
+
         </Route>
 
         {/* Fallback */}

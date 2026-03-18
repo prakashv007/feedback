@@ -1,45 +1,55 @@
 /* Main Layout Transitions */
 .app-container {
   display: flex;
+  flex-direction: column;
   min-height: 100vh;
-  transition: all 0.3s var(--smooth);
+  width: 100vw;
+  background: var(--bg-light);
+}
+
+.app-main-wrapper {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
   position: relative;
 }
 
 /* Sidebar Styles - Universal Toggle */
 .sidebar {
-  width: 280px;
+  width: 320px;
   background: white;
   border-right: 1px solid #f1f5f9;
   display: flex;
   flex-direction: column;
   padding: 2.5rem 1.5rem;
+  flex-shrink: 0;
+  z-index: 100;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: fixed;
   height: 100vh;
-  position: fixed; /* Fixed for all sizes to support toggle */
   top: 0;
   left: 0;
-  z-index: 100;
   transform: translateX(-100%);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 20px 0 60px rgba(0, 0, 0, 0.05);
 }
 
 .main-content {
   flex: 1;
-  background: #f8fafc;
-  min-height: 100vh;
-  width: 100%;
+  padding: 3.5rem;
+  overflow-y: auto;
+  background: var(--bg-light);
+  height: 100%;
 }
 
 /* Universal Nav Header & Hamburger */
 .mobile-nav-header {
-  display: flex; /* Always visible */
+  display: flex;
   background: white;
   padding: 1rem 1.5rem;
   border-bottom: 1px solid #f1f5f9;
   position: sticky;
   top: 0;
-  z-index: 101;
+  z-index: 90;
   justify-content: flex-start;
   align-items: center;
   gap: 1.5rem;
@@ -99,10 +109,10 @@
 }
 
 /* Responsive Content Adjustments */
-@media (max-width: 640px) {
-  .mobile-nav-header {
-    padding: 0.75rem 1rem;
-    gap: 1rem;
+@media (max-width: 768px) {
+  
+  .main-content {
+    padding: 1.5rem;
   }
   
   .mobile-portal-label {

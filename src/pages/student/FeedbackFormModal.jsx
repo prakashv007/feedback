@@ -4,7 +4,7 @@ import { Star, X, Loader2 } from 'lucide-react';
 import { db, collection, addDoc } from '../../firebase';
 import './FeedbackFormModal.css';
 
-function FeedbackFormModal({ subject, teacher, semesterId, onClose, onSubmit }) {
+function FeedbackFormModal({ subject, teacher, semesterId, activeSessionId, onClose, onSubmit }) {
   const [customQuestions, setCustomQuestions] = useState([]);
   const [ratings, setRatings] = useState({});
   const [comment, setComment] = useState('');
@@ -45,6 +45,11 @@ function FeedbackFormModal({ subject, teacher, semesterId, onClose, onSubmit }) 
       studentId: localStorage.getItem('userId'),
       semesterId: semesterId,
       subjectId: subject.id,
+      sessionId: activeSessionId || 'default',
+      subjectName: subject.name,
+      teacherCode: teacher?.code || '',
+      teacherName: teacher?.name || '',
+      teacherTitle: teacher?.title || '',
       ratings,
       comment,
       averageRating: parseFloat(averageRating.toFixed(2)),

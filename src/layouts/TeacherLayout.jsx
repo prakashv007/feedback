@@ -33,8 +33,9 @@ function TeacherLayout() {
         </div>
       </header>
 
-      {/* Sidebar Overlay */}
-      <div className="sidebar-overlay" onClick={closeSidebar}></div>
+      <div className="app-main-wrapper">
+        {/* Sidebar Overlay */}
+        <div className="sidebar-overlay" onClick={closeSidebar}></div>
 
       <aside className="sidebar">
         <div className="sidebar-header" style={{ padding: '0 1rem 2rem', marginBottom: '1.5rem', borderBottom: '1px solid #f1f5f9' }}>
@@ -88,6 +89,7 @@ function TeacherLayout() {
         <Outlet />
       </main>
     </div>
+  </div>
   );
 }
 

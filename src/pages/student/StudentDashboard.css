@@ -26,13 +26,40 @@
   font-weight: 500;
 }
 
+.subtitle.pink-text {
+  color: #ff4d94;
+  font-weight: 600;
+}
+
 /* Bento Grid */
 .semester-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(2, 1fr);
+  grid-template-rows: auto;
   gap: 1.5rem;
   perspective: 1000px;
+}
+
+.empty-sem-notice {
+  grid-column: 1 / -1;
+  background: white;
+  padding: 3rem;
+  border-radius: var(--radius-xl);
+  text-align: center;
+  border: 2px dashed #edf2f7;
+}
+
+.empty-sem-notice h3 {
+  font-size: 1.75rem;
+  color: var(--text-main);
+  margin-bottom: 1rem;
+}
+
+.empty-sem-notice p {
+  color: var(--text-muted);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
 }
 
 .semester-card {

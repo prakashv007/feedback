@@ -5,7 +5,9 @@ import './StudentDashboard.css';
 
 function StudentDashboard() {
   const navigate = useNavigate();
-  const semesters = Array.from({ length: 8 }, (_, i) => i + 1);
+  const userName = localStorage.getItem('userName') || 'Student';
+  const assignedSemester = parseInt(localStorage.getItem('userSemester'));
+  const semesters = assignedSemester ? [assignedSemester] : [];
 
   useEffect(() => {
     getInitialData();
@@ -14,11 +16,21 @@ function StudentDashboard() {
   return (
     <div className="dashboard-container">
       <header className="dashboard-header">
-        <h1>Welcome Back, Student!</h1>
-        <p className="subtitle">Select your current semester to provide feedback.</p>
+        <h1>Welcome Back, {userName}!</h1>
+        {semesters.length > 0 ? (
+          <p className="subtitle">Select your current semester to provide feedback.</p>
+        ) : (
+          <p className="subtitle pink-text">You haven't been assigned to a semester yet. Please contact the Admin Office.</p>
+        )}
       </header>
 
       <div className="semester-grid">
+        {semesters.length === 0 && (
+          <div className="empty-sem-notice animate-fade-in shadow-xl">
+            <h3>No Active Semester Found</h3>
+            <p>Your curriculum access is restricted. Once the administrator assigns you to a semester (e.g., Session 2023-2027, 3rd Year), your active semester will appear here automatically.</p>
+          </div>
+        )}
         {semesters.map((sem, idx) => (
           <div 
             key={sem} 
