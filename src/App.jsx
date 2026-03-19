@@ -13,6 +13,8 @@ import StudentDashboard from './pages/student/StudentDashboard';
 import SemesterView from './pages/student/SemesterView';
 import HodDashboard from './pages/hod/HodDashboard';
 import Reports from './pages/hod/Reports';
+import SubjectAnalysis from './pages/hod/SubjectAnalysis';
+import FeedbackTimeline from './pages/hod/FeedbackTimeline';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ManageStaff from './pages/admin/ManageStaff';
 import ManageStudents from './pages/admin/ManageStudents';
@@ -47,7 +49,8 @@ function App() {
         {/* HOD Routes */}
         <Route path="/hod" element={<HodLayout />}>
           <Route index element={<HodDashboard />} />
-          <Route path="reports" element={<Reports />} />
+          <Route path="analysis" element={<SubjectAnalysis />} />
+          <Route path="timeline" element={<FeedbackTimeline />} />
         </Route>
 
         {/* Admin Routes */}

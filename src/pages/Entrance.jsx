@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { GraduationCap, Users, ShieldCheck } from 'lucide-react';
+import { GraduationCap, Users, Settings2 } from 'lucide-react';
 import './Auth.css';
 
 function Entrance() {
@@ -19,7 +19,7 @@ function Entrance() {
         <div className="role-grid">
           <Link to="/student-login" className="role-card">
             <div className="role-icon">
-              <ShieldCheck size={40} />
+              <GraduationCap size={40} />
             </div>
             <div className="role-info">
               <h3>Student Portal</h3>
@@ -39,7 +39,7 @@ function Entrance() {
 
           <Link to="/admin-login" className="role-card">
             <div className="role-icon">
-              <GraduationCap size={40} />
+              <Settings2 size={40} />
             </div>
             <div className="role-info">
               <h3>Admin Portal</h3>

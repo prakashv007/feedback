@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { db, collection, onSnapshot } from '../../firebase';
+import { db, collection, onSnapshot, doc } from '../../firebase';
 import { Users, Star, Activity, ChevronRight } from 'lucide-react';
 import './HodDashboard.css';
 
@@ -8,6 +8,7 @@ function HodDashboard() {
   const [staffList, setStaffList] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [selectedTeacher, setSelectedTeacher] = useState(null);
+  const [activeSessionId, setActiveSessionId] = useState(null);
 
   useEffect(() => {
     const unsubFeedbacks = onSnapshot(collection(db, 'feedbacks'), (snapshot) => {
@@ -25,18 +26,29 @@ function HodDashboard() {
       setSubjects(subData);
     });
 
+    const unsubSettings = onSnapshot(doc(db, 'settings', 'current'), (snap) => {
+      if (snap.exists()) {
+        setActiveSessionId(snap.data().id);
+      }
+    });
+
     return () => {
       unsubFeedbacks();
       unsubStaff();
       unsubSubjects();
+      unsubSettings();
     };
   }, []);
 
   // Compute Department Stats
+  const currentFeedbacks = activeSessionId 
+    ? feedbacks.filter(f => f.sessionId === activeSessionId)
+    : feedbacks;
+
   const totalTeachers = staffList.length;
-  const totalFeedbacks = feedbacks.length;
+  const totalFeedbacks = currentFeedbacks.length;
   const currentDeptAvg = totalFeedbacks > 0 
-    ? (feedbacks.reduce((sum, f) => sum + f.averageRating, 0) / totalFeedbacks).toFixed(2)
+    ? (currentFeedbacks.reduce((sum, f) => sum + f.averageRating, 0) / totalFeedbacks).toFixed(2)
     : 0;
 
   // Response Rate Calculation
@@ -49,8 +61,8 @@ function HodDashboard() {
 
   // Compute Teacher Performance
   const teacherPerformance = staffList.map(staff => {
-    // Filter feedbacks for this teacher (using teacherCode)
-    const tFeedbacks = feedbacks.filter(f => f.teacherCode === staff.code);
+    // Filter feedbacks for this teacher within THIS session
+    const tFeedbacks = currentFeedbacks.filter(f => f.teacherCode === staff.code);
 
     const tTotal = tFeedbacks.length;
     const tAvg = tTotal > 0 

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Navigate, Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, LogOut, BarChart3, Users, Menu, X } from 'lucide-react';
+import { LayoutDashboard, LogOut, Users, Activity, Menu, X } from 'lucide-react';
 
 function HodLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -67,12 +67,20 @@ function HodLayout() {
             <span>Overview</span>
           </Link>
           <Link 
-            to="/hod/reports" 
-            className={`nav-item ${location.pathname === '/hod/reports' ? 'active' : ''}`}
+            to="/hod/analysis" 
+            className={`nav-item ${location.pathname === '/hod/analysis' ? 'active' : ''}`}
             onClick={closeSidebar}
           >
-            <BarChart3 size={20} />
-            <span>Reports</span>
+            <Users size={20} />
+            <span>Subject Analysis</span>
+          </Link>
+          <Link 
+            to="/hod/timeline" 
+            className={`nav-item ${location.pathname === '/hod/timeline' ? 'active' : ''}`}
+            onClick={closeSidebar}
+          >
+            <Activity size={20} />
+            <span>Feedback Timeline</span>
           </Link>
         </nav>
 

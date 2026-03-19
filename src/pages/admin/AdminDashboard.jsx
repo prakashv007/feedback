@@ -8,10 +8,12 @@ function AdminDashboard() {
   const [staffCount, setStaffCount] = useState(0);
   const [studentCount, setStudentCount] = useState(0);
   const [subjectCount, setSubjectCount] = useState(0);
+  const [feedbacks, setFeedbacks] = useState([]);
   const [feedbackCount, setFeedbackCount] = useState(0);
   const [activeSession, setActiveSession] = useState({ id: 'default', name: 'Standard Session' });
   const [showSessionModal, setShowSessionModal] = useState(false);
   const [newSessionName, setNewSessionName] = useState('');
+  const [sessionFeedbacks, setSessionFeedbacks] = useState([]);
   const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
@@ -32,7 +34,9 @@ function AdminDashboard() {
 
     // Listen to feedbacks collection
     const unsubFeedbacks = onSnapshot(collection(db, 'feedbacks'), (snap) => {
-      setFeedbackCount(snap.size);
+      const all = snap.docs.map(d => d.data());
+      setFeedbacks(all);
+      setFeedbackCount(all.length);
     });
 
     // Listen to current session settings
@@ -62,7 +66,7 @@ function AdminDashboard() {
     { label: 'Total Staff', value: staffCount, icon: Users, color: 'green', to: '/admin/staff' },
     { label: 'Total Students', value: studentCount, icon: GraduationCap, color: 'blue', to: '/admin/students' },
     { label: 'Total Subjects', value: subjectCount, icon: BookOpen, color: 'amber', to: '/admin/assign' },
-    { label: 'Feedbacks', value: feedbackCount, icon: Link2, color: 'purple', to: '/admin' },
+    { label: 'Feedbacks (Current Session)', value: feedbacks.filter(f => f.sessionId === activeSession?.id).length, icon: Link2, color: 'purple', to: '/admin' },
     { label: 'Active Session', value: activeSession.name, icon: Calendar, color: 'indigo', action: () => setShowSessionModal(true) },
   ];
 
