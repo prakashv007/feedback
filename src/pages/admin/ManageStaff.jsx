@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Users, Plus, Pencil, Trash2, Upload, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
-import { db, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc } from '../../firebase';
+import { db, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, where, getDocs } from '../../firebase';
 import '../admin/AdminDashboard.css';
 
 function ManageStaff() {
@@ -42,11 +42,30 @@ function ManageStaff() {
     if (!form.code.trim() || !form.name.trim()) return;
 
     if (editingStaff) {
+      const staffCode = form.code.trim();
+      const staffName = form.name.trim();
+      const staffTitle = form.title.trim();
+
       await updateDoc(doc(db, 'staff', editingStaff.id), {
-        code: form.code.trim(),
-        name: form.name.trim(),
-        title: form.title.trim()
+        code: staffCode,
+        name: staffName,
+        title: staffTitle
       });
+
+      // Propagate changes to assignments
+      try {
+        const q = query(collection(db, 'assignments'), where('staffCode', '==', staffCode));
+        const snap = await getDocs(q);
+        const promises = snap.docs.map(d => 
+          updateDoc(doc(db, 'assignments', d.id), {
+            staffName: staffName,
+            staffTitle: staffTitle
+          })
+        );
+        await Promise.all(promises);
+      } catch (err) {
+        console.error('Failed to propagate staff changes:', err);
+      }
     } else {
       await addDoc(collection(db, 'staff'), {
         code: form.code.trim(),

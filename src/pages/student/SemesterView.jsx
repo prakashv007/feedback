@@ -12,6 +12,7 @@ function SemesterView() {
   
   const [subjects, setSubjects] = useState([]);
   const [assignments, setAssignments] = useState([]);
+  const [staffList, setStaffList] = useState([]);
   const [feedbacks, setFeedbacks] = useState([]);
   const [selectedSubject, setSelectedSubject] = useState(null);
   const [activeSessionId, setActiveSessionId] = useState(null);
@@ -34,7 +35,17 @@ function SemesterView() {
       setAssignments(data);
     });
 
-    // 3. Fetch active session ID
+    // 3. Fetch all staff to join latest info
+    const unsubStaff = onSnapshot(collection(db, 'staff'), (snapshot) => {
+      const data = snapshot.docs.reduce((acc, doc) => {
+        const d = doc.data();
+        acc[d.code] = d;
+        return acc;
+      }, {});
+      setStaffList(data);
+    });
+
+    // 4. Fetch active session ID
     const unsubSettings = onSnapshot(doc(db, 'settings', 'current'), (snap) => {
       if (snap.exists()) {
         setActiveSessionId(snap.data().id);
@@ -44,6 +55,7 @@ function SemesterView() {
     return () => {
       unsubSubjects();
       unsubAssignments();
+      unsubStaff();
       unsubSettings();
     };
   }, [semester, userId]);
@@ -80,10 +92,19 @@ function SemesterView() {
     setSelectedSubject(null); 
   };
 
-  const subjectsWithStaff = subjects.map(sub => ({
-    ...sub,
-    assignment: getSubjectAssignment(sub.id)
-  }));
+  const subjectsWithStaff = subjects.map(sub => {
+    const assign = getSubjectAssignment(sub.id);
+    const latestStaff = assign ? staffList[assign.staffCode] : null;
+    
+    return {
+      ...sub,
+      assignment: assign ? {
+        ...assign,
+        staffName: latestStaff?.name || assign.staffName,
+        staffTitle: latestStaff?.title || assign.staffTitle
+      } : null
+    };
+  });
 
   return (
     <div className="semester-view-container">
