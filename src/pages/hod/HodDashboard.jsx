@@ -212,10 +212,6 @@ function HodDashboard() {
                          <span className="ml">Total Reviews</span>
                          <span className="mv">{selectedTeacher.totalResponses}</span>
                       </div>
-                      <div className="metric-card highlight">
-                         <span className="ml">Percentile</span>
-                         <span className="mv">98th</span>
-                      </div>
                    </div>
                    
                    <div className="chart-container">
@@ -227,7 +223,14 @@ function HodDashboard() {
                          </div>
                       </div>
                       <p className="insight-text">
-                        Feedback is highly positive regarding punctuality and subject clarity.
+                        {selectedTeacher.averageRating >= 4.5 
+                          ? "Excellent performance with consistently high student satisfaction."
+                          : selectedTeacher.averageRating >= 4.0
+                          ? "Very good student feedback, consistently meeting expectations."
+                          : selectedTeacher.averageRating >= 3.0
+                          ? "Generally positive feedback, with some areas for improvement."
+                          : "Requires attention. Consider reviewing course delivery methods."
+                        }
                       </p>
                    </div>
                 </div>

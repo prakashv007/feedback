@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Upload, Plus, Trash2, CheckCircle, AlertCircle, Loader2, Activity } from 'lucide-react';
+import { Upload, Plus, Trash2, CheckCircle, AlertCircle, Loader2, Activity, Pencil } from 'lucide-react';
 import { db, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc } from '../../firebase';
 import '../admin/AdminDashboard.css';
 
@@ -7,6 +7,7 @@ function ManageStudents() {
   const [students, setStudents] = useState([]);
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [editingStudent, setEditingStudent] = useState(null);
   const [showBulkModal, setShowBulkModal] = useState(false);
   const [localStatus, setLocalStatus] = useState(null);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
@@ -32,17 +33,43 @@ function ManageStudents() {
     return () => unsub();
   }, []);
 
-  const handleAdd = async () => {
+  const handleSave = async () => {
     if (!form.regNo.trim() || !form.name.trim()) return;
-    await addDoc(collection(db, 'students'), {
+    
+    const studentData = {
       regNo: form.regNo.trim(),
       name: form.name.trim(),
       section: form.section.trim(),
       year: form.year.trim(),
       session: form.session.trim(),
       currentSemester: parseInt(form.currentSemester) || null
+    };
+
+    if (editingStudent) {
+      await updateDoc(doc(db, 'students', editingStudent.id), studentData);
+    } else {
+      await addDoc(collection(db, 'students'), studentData);
+    }
+    
+    resetForm();
+  };
+
+  const handleEdit = (student) => {
+    setEditingStudent(student);
+    setForm({
+      regNo: student.regNo,
+      name: student.name,
+      section: student.section || '',
+      year: student.year || '',
+      session: student.session || '',
+      currentSemester: student.currentSemester?.toString() || ''
     });
+    setShowModal(true);
+  };
+
+  const resetForm = () => {
     setForm({ regNo: '', name: '', section: '', year: '', session: '', currentSemester: '' });
+    setEditingStudent(null);
     setShowModal(false);
   };
 
@@ -227,12 +254,13 @@ function ManageStudents() {
             <tr>
               <th>Register No</th>
               <th>Name</th>
+              <th>Section</th>
               <th>Session</th>
               <th>Year</th>
               <th>Sem</th>
               <th>Actions</th>
             </tr>
-          </thead>
+</thead>
           <tbody>
             {filtered.length === 0 ? (
               <tr><td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>No students found. Add your first student!</td></tr>
@@ -241,10 +269,14 @@ function ManageStudents() {
                 <tr key={s.id}>
                   <td><strong>{s.regNo}</strong></td>
                   <td>{s.name}</td>
+                  <td>{s.section || '—'}</td>
                   <td>{s.session || '—'}</td>
                   <td>{s.year || '—'}</td>
                   <td><span className="badge">{s.currentSemester || '—'}</span></td>
                   <td className="actions">
+                    <button className="admin-btn secondary sm" onClick={() => handleEdit(s)}>
+                      <Pencil size={14} />
+                    </button>
                     <button className="admin-btn danger sm" onClick={() => handleDelete(s.id)}>
                       <Trash2 size={14} />
                     </button>
@@ -258,9 +290,9 @@ function ManageStudents() {
 
       {/* Add Single Student Modal */}
       {showModal && (
-        <div className="admin-modal-overlay" onClick={() => setShowModal(false)}>
+        <div className="admin-modal-overlay" onClick={resetForm}>
           <div className="admin-modal" onClick={e => e.stopPropagation()}>
-            <h3>Add New Student</h3>
+            <h3>{editingStudent ? 'Modify Student' : 'Add New Student'}</h3>
             <div className="admin-modal-form">
               <div style={{ display: 'flex', gap: '1rem' }}>
                 <div className="admin-field" style={{ flex: 1 }}>
@@ -321,8 +353,10 @@ function ManageStudents() {
                 />
               </div>
               <div className="admin-modal-actions">
-                <button className="admin-btn secondary" onClick={() => setShowModal(false)}>Cancel</button>
-                <button className="admin-btn" onClick={handleAdd}>Add Student</button>
+                <button className="admin-btn secondary" onClick={resetForm}>Cancel</button>
+                <button className="admin-btn" onClick={handleSave}>
+                  {editingStudent ? 'Update Student' : 'Add Student'}
+                </button>
               </div>
             </div>
           </div>

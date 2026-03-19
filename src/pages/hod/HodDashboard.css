@@ -386,7 +386,7 @@
 
 .detail-card-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 2rem;
   margin-bottom: 3rem;
 }
@@ -489,6 +489,25 @@
   .detail-card-row {
     grid-template-columns: 1fr;
     gap: 1rem;
+  }
+
+  .close-btn {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    width: 44px;
+    height: 44px;
+    font-size: 28px;
+    background: var(--primary) !important;
+    color: white !important;
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.3);
+    z-index: 99999; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+    border-radius: 50%;
+    cursor: pointer;
   }
 }
 

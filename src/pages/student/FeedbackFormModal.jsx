@@ -1,24 +1,48 @@
 import { useState, useEffect } from 'react';
-import { defaultQuestions } from '../../data/mockData';
 import { Star, X, Loader2 } from 'lucide-react';
-import { db, collection, addDoc } from '../../firebase';
+import { db, collection, addDoc, getDocs, query, orderBy, where } from '../../firebase';
 import './FeedbackFormModal.css';
 
 function FeedbackFormModal({ subject, teacher, semesterId, activeSessionId, onClose, onSubmit }) {
-  const [customQuestions, setCustomQuestions] = useState([]);
+  const [allQuestions, setAllQuestions] = useState([]);
   const [ratings, setRatings] = useState({});
   const [comment, setComment] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  // Combine default and custom questions on mount
+  // Fetch questions on mount
   useEffect(() => {
-    const savedCustomQuestions = JSON.parse(localStorage.getItem('customQuestions') || '{}');
-    const subjCustomQs = savedCustomQuestions[subject.id] || [];
-    setCustomQuestions(subjCustomQs);
-  }, [subject.id]);
+    const fetchQuestions = async () => {
+      try {
+        // Fetch all questions from Firestore and filter in-memory to avoid index requirements
+        const q = query(collection(db, 'questions'), orderBy('order', 'asc'));
+        const snap = await getDocs(q);
+        
+        const fbQuestions = snap.docs
+          .map(doc => ({ id: doc.id, ...doc.data() }))
+          .filter(q => q.subjectId === 'global' || q.subjectId === subject.id)
+          .map(q => q.text);
 
-  const allQuestions = [...defaultQuestions, ...customQuestions];
+        // 2. Fetch Legacy/Local Custom Questions (Optional fallback)
+        const savedCustomQuestions = JSON.parse(localStorage.getItem('customQuestions') || '{}');
+        const subjCustomQs = savedCustomQuestions[subject.id] || [];
+        
+        // Remove duplicates if any (by text)
+        const unifiedQs = [...new Set([...fbQuestions, ...subjCustomQs])];
+        
+        setAllQuestions(unifiedQs);
+      } catch (err) {
+        console.error("Error fetching questions:", err);
+        // Fallback to minimal defaults if error
+        setAllQuestions(["How clearly does the teacher explain concepts?", "Is the teacher punctual?"]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchQuestions();
+  }, [subject.id]);
 
   const handleRating = (index, value) => {
     setRatings(prev => ({ ...prev, [index]: value }));
@@ -102,7 +126,13 @@ function FeedbackFormModal({ subject, teacher, semesterId, activeSessionId, onCl
           <p className="subtitle">Feedback for {teacher ? teacher.name : 'Unknown Teacher'}</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="feedback-form">
+        {loading ? (
+          <div className="modal-loading">
+            <Loader2 className="animate-spin" size={32} />
+            <p>Loading questions...</p>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="feedback-form">
           <div className="questions-container">
             {allQuestions.map((q, index) => (
               <div key={index} className="question-item">
@@ -157,6 +187,7 @@ function FeedbackFormModal({ subject, teacher, semesterId, activeSessionId, onCl
             </button>
           </div>
         </form>
+        )}
       </div>
     </div>
   );

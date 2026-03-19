@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Users, ArrowLeft, AlertCircle, Loader2 } from 'lucide-react';
+import { Users, ArrowLeft, AlertCircle, Loader2, Lock } from 'lucide-react';
 import './Auth.css';
 
 function StaffLogin() {
   const [staffCode, setStaffCode] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -24,10 +25,16 @@ function StaffLogin() {
     // Logic from original Login.jsx
     setTimeout(() => {
       // HOD Login
-      if (id === 'ITHOD') {
+      if (id === 'ITHOD' && password === 'hod@it2026') {
         localStorage.setItem('userRole', 'HOD');
         localStorage.setItem('userId', id);
         navigate('/hod');
+        return;
+      }
+      
+      if (id === 'ITHOD' && password !== 'hod@it2026') {
+        setError('Invalid password for HOD');
+        setLoading(false);
         return;
       }
 
@@ -72,6 +79,18 @@ function StaffLogin() {
                 value={staffCode}
                 onChange={(e) => setStaffCode(e.target.value)}
                 autoFocus
+                required
+              />
+            </div>
+
+            <div className="input-container">
+              <Lock className="input-icon" size={20} />
+              <input
+                type="password"
+                id="staffPassword"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
               />
             </div>

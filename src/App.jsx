@@ -17,6 +17,7 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import ManageStaff from './pages/admin/ManageStaff';
 import ManageStudents from './pages/admin/ManageStudents';
 import AssignStaff from './pages/admin/AssignStaff';
+import ManageQuestions from './pages/admin/ManageQuestions';
 
 import ComingSoon from './pages/ComingSoon';
 
@@ -55,6 +56,7 @@ function App() {
           <Route path="staff" element={<ManageStaff />} />
           <Route path="students" element={<ManageStudents />} />
           <Route path="assign" element={<AssignStaff />} />
+          <Route path="questions" element={<ManageQuestions />} />
 
         </Route>
 

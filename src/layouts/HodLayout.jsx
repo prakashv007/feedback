@@ -66,10 +66,6 @@ function HodLayout() {
             <LayoutDashboard size={20} />
             <span>Overview</span>
           </Link>
-          <div className="nav-item">
-            <Users size={20} />
-            <span>Teachers</span>
-          </div>
           <Link 
             to="/hod/reports" 
             className={`nav-item ${location.pathname === '/hod/reports' ? 'active' : ''}`}

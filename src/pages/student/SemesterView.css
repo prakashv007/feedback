@@ -106,3 +106,43 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
+
+@media (max-width: 768px) {
+  .header-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .header-actions h1 {
+    font-size: 1.75rem;
+  }
+
+  .subject-card {
+    flex-direction: column;
+    padding: 1.5rem;
+    gap: 1.25rem;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .subject-card:hover {
+    transform: translateY(-4px);
+  }
+
+  .subject-info h3 {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .subject-action {
+    min-width: 100%;
+    justify-content: center;
+  }
+
+  .subject-action .btn {
+    width: 100%;
+    padding: 1rem;
+  }
+}

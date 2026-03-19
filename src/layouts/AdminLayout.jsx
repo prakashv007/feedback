@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Navigate, Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, GraduationCap, Link2, LogOut, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Users, GraduationCap, Link2, HelpCircle, LogOut, Menu, X } from 'lucide-react';
 
 function AdminLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -25,6 +25,7 @@ function AdminLayout() {
     { to: '/admin/staff', icon: Users, label: 'Manage Staff' },
     { to: '/admin/students', icon: GraduationCap, label: 'Manage Students' },
     { to: '/admin/assign', icon: Link2, label: 'Assign Staff' },
+    { to: '/admin/questions', icon: HelpCircle, label: 'Manage Questions' },
   ];
 
   return (

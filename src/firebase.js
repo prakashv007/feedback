@@ -1,5 +1,6 @@
+// Firebase initialization and exports
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, addDoc, getDocs, getDoc, query, where, updateDoc, deleteDoc, setDoc, doc, onSnapshot } from "firebase/firestore";
+import { getFirestore, collection, addDoc, getDocs, getDoc, query, where, updateDoc, deleteDoc, setDoc, doc, onSnapshot, orderBy } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 // REPLACE THIS WITH YOUR ACTUAL CONFIG FROM FIREBASE CONSOLE
@@ -29,5 +30,6 @@ export {
   deleteDoc,
   setDoc,
   doc, 
-  onSnapshot 
+  onSnapshot,
+  orderBy
 };
